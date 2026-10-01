@@ -48,15 +48,19 @@ interface provider {
     public function is_available(): bool;
 
     /**
-     * @param int $courseid Course id.
-     * @return array<int, string>
+     * Method get_instances.
+     *
+     * @param int $courseid Parameter courseid.
+     * @return array Return value.
      */
     public function get_instances(int $courseid): array;
 
     /**
-     * @param int $courseid Course id.
-     * @param int $instanceid Source instance id.
-     * @return array<string, string>
+     * Method get_questions.
+     *
+     * @param int $courseid Parameter courseid.
+     * @param int $instanceid Parameter instanceid.
+     * @return array Return value.
      */
     public function get_questions(int $courseid, int $instanceid): array;
 
@@ -70,19 +74,21 @@ interface provider {
     public function require_access(int $courseid, int $instanceid): void;
 
     /**
-     * @param int $courseid Course id.
-     * @param int $instanceid Source instance id.
-     * @param string[] $questionids Selected question ids.
-     * @param int $datefrom Inclusive lower timestamp.
-     * @param int $dateuntil Inclusive upper timestamp.
-     * @return response_record[]
+     * Method get_responses.
+     *
+     * @param int $courseid Parameter courseid.
+     * @param int $instanceid Parameter instanceid.
+     * @param array $questionids Parameter questionids.
+     * @param int $datefrom Parameter datefrom.
+     * @param int $dateuntil Parameter dateuntil.
+     * @return array Return value.
      */
     public function get_responses(
-        int   $courseid,
-        int   $instanceid,
+        int $courseid,
+        int $instanceid,
         array $questionids,
-        int   $datefrom,
-        int   $dateuntil
+        int $datefrom,
+        int $dateuntil
     ): array;
 
     /**

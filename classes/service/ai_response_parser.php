@@ -45,9 +45,11 @@ final class ai_response_parser {
     }
 
     /**
-     * @param array $payload Parsed payload.
-     * @param string[] $validids Valid pseudo IDs.
-     * @return array{payload:array,invalidids:int}
+     * Method validate_ids.
+     *
+     * @param array $payload Parameter payload.
+     * @param array $validids Parameter validids.
+     * @return array Return value.
      */
     public static function validate_ids(array $payload, array $validids): array {
         $validmap = array_fill_keys($validids, true);

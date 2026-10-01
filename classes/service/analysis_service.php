@@ -49,21 +49,23 @@ final class analysis_service {
     }
 
     /**
-     * @param provider $provider Source provider.
-     * @param int $courseid Course id.
-     * @param int $instanceid Source instance id.
-     * @param string[] $questionids Question ids.
-     * @param int $datefrom Start timestamp.
-     * @param int $dateuntil End timestamp.
-     * @return array{result:array,responses:array,emptycount:int,invalididcount:int}
+     * Method run.
+     *
+     * @param provider $provider Parameter provider.
+     * @param int $courseid Parameter courseid.
+     * @param int $instanceid Parameter instanceid.
+     * @param array $questionids Parameter questionids.
+     * @param int $datefrom Parameter datefrom.
+     * @param int $dateuntil Parameter dateuntil.
+     * @return array Return value.
      */
     public function run(
         provider $provider,
-        int      $courseid,
-        int      $instanceid,
-        array    $questionids,
-        int      $datefrom,
-        int      $dateuntil
+        int $courseid,
+        int $instanceid,
+        array $questionids,
+        int $datefrom,
+        int $dateuntil
     ): array {
         $provider->require_access($courseid, $instanceid);
         $rawresponses = $provider->get_responses($courseid, $instanceid, $questionids, $datefrom, $dateuntil);
@@ -129,8 +131,10 @@ final class analysis_service {
     }
 
     /**
-     * @param response_record[] $responses Source responses.
-     * @return array{0:array,1:int}
+     * Method normalise_nonempty.
+     *
+     * @param array $responses Parameter responses.
+     * @return array Return value.
      */
     private function normalise_nonempty(array $responses): array {
         $result = [];

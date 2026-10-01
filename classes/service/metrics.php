@@ -39,9 +39,9 @@ final class metrics {
     public static function enrich(
         array $payload,
         array $pseudomap,
-        int   $datefrom,
-        int   $dateuntil,
-        int   $mintrendresponses
+        int $datefrom,
+        int $dateuntil,
+        int $mintrendresponses
     ): array {
         $total = count($pseudomap);
         foreach ($payload['themes'] as &$theme) {
@@ -104,10 +104,10 @@ final class metrics {
     private static function trend(
         array $pseudoids,
         array $pseudomap,
-        int   $datefrom,
-        int   $dateuntil,
-        int   $total,
-        int   $mintrendresponses
+        int $datefrom,
+        int $dateuntil,
+        int $total,
+        int $mintrendresponses
     ): array {
         $span = $dateuntil - $datefrom;
         if ($total < $mintrendresponses || $span < (2 * DAYSECS)) {

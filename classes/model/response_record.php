@@ -35,12 +35,12 @@ final class response_record {
      * @param bool $anonymous Whether the source explicitly treats this response as anonymous.
      */
     public function __construct(
-        public readonly int    $id,
+        public readonly int $id,
         public readonly string $questionid,
         public readonly string $text,
-        public readonly int    $timestamp,
-        public readonly ?int   $userid,
-        public readonly bool   $anonymous = false,
+        public readonly int $timestamp,
+        public readonly ?int $userid,
+        public readonly bool $anonymous = false,
     ) {
     }
 }

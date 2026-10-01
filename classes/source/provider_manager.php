@@ -87,8 +87,10 @@ final class provider_manager {
     }
 
     /**
-     * @param int $courseid Course id.
-     * @return array<string, string>
+     * Method get_source_options.
+     *
+     * @param int $courseid Parameter courseid.
+     * @return array Return value.
      */
     public static function get_source_options(int $courseid): array {
         $options = [];
@@ -101,8 +103,10 @@ final class provider_manager {
     }
 
     /**
-     * @param string $value Selector value.
-     * @return array{0:string,1:int}
+     * Method parse_source_value.
+     *
+     * @param string $value Parameter value.
+     * @return array Return value.
      */
     public static function parse_source_value(string $value): array {
         if (!preg_match('/^([a-z][a-z0-9_]*)_(\d+)$/', $value, $matches)) {

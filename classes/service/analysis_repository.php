@@ -29,10 +29,12 @@ use local_feedbackinsights\model\response_record;
  */
 final class analysis_repository {
     /**
-     * @param array $metadata Analysis metadata.
-     * @param array $result Structured result.
-     * @param response_record[] $responses All processed non-empty responses.
-     * @return int Analysis id.
+     * Method save.
+     *
+     * @param array $metadata Parameter metadata.
+     * @param array $result Parameter result.
+     * @param array $responses Parameter responses.
+     * @return int Return value.
      */
     public static function save(array $metadata, array $result, array $responses): int {
         global $DB, $USER;
@@ -167,7 +169,10 @@ final class analysis_repository {
     }
 
     /**
-     * @param int[] $analysisids Analysis ids.
+     * Method delete_ids.
+     *
+     * @param array $analysisids Parameter analysisids.
+     * @return void Return value.
      */
     public static function delete_ids(array $analysisids): void {
         global $DB;

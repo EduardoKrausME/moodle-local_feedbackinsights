@@ -138,11 +138,11 @@ final class feedback_provider extends base_provider {
      * @return array Return value.
      */
     public function get_responses(
-        int   $courseid,
-        int   $instanceid,
+        int $courseid,
+        int $instanceid,
         array $questionids,
-        int   $datefrom,
-        int   $dateuntil
+        int $datefrom,
+        int $dateuntil
     ): array {
         global $DB;
 

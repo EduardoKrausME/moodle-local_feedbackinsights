@@ -39,11 +39,11 @@ final class presenter {
      * @return array Return value.
      */
     public static function result(
-        array  $result,
-        int    $courseid,
+        array $result,
+        int $courseid,
         string $source,
-        int    $sourceid,
-        bool   $canviewresponses
+        int $sourceid,
+        bool $canviewresponses
     ): array {
         $themes = [];
         $provider = $canviewresponses ? provider_manager::get($source) : null;
