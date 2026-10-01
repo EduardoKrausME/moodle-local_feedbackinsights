@@ -26,6 +26,7 @@ use local_feedbackinsights\service\analysis_repository;
 /**
  * Privacy and anonymous-response persistence tests.
  *
+ * @coversNothing
  * @package local_feedbackinsights
  * @copyright 2026 Eduardo Kraus {@link https://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
