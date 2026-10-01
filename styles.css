@@ -1,0 +1,7 @@
+.local-feedbackinsights .card {
+    border-radius: .75rem;
+}
+
+.local-feedbackinsights .badge {
+    white-space: nowrap;
+}

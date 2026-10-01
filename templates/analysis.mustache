@@ -1,0 +1,105 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_feedbackinsights/analysis
+
+    Example context (json):
+    {
+        Aqui tem que criar o context em inglês
+    }
+}}
+{{!
+    Structured analysis result.
+}}
+<div class="local-feedbackinsights mt-4">
+    <h3>{{#str}}themes, local_feedbackinsights{{/str}}</h3>
+
+    {{^hasthemes}}
+        <div class="alert alert-info">{{#str}}nothemes, local_feedbackinsights{{/str}}</div>
+    {{/hasthemes}}
+
+    {{#themes}}
+        <section class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div>
+                        <h4 class="h5 mb-1">{{title}}</h4>
+                        <p class="mb-2">{{description}}</p>
+                    </div>
+                    <span class="badge bg-secondary">≈ {{count}} · {{percentage}}%</span>
+                </div>
+
+                <div class="small text-muted mb-2">
+                    {{#str}}confidence, local_feedbackinsights{{/str}}: {{confidence}}%
+                </div>
+
+                {{#hasexamples}}
+                    <div class="mb-2">
+                        <strong>{{#str}}evidence, local_feedbackinsights{{/str}}:</strong>
+                        {{#examples}}
+                            <blockquote class="border-start ps-3 my-2">
+                                <div>{{text}}</div>
+                                <a class="small" href="{{url}}">{{label}}</a>
+                            </blockquote>
+                        {{/examples}}
+                    </div>
+                {{/hasexamples}}
+
+                {{#hastrend}}
+                    <div>
+                        <strong>{{#str}}trend, local_feedbackinsights{{/str}}:</strong>
+                        <div class="d-flex flex-wrap gap-2 mt-1">
+                            {{#trend}}
+                                <span class="badge bg-light text-dark">{{label}}: {{count}}</span>
+                            {{/trend}}
+                        </div>
+                    </div>
+                {{/hastrend}}
+            </div>
+        </section>
+    {{/themes}}
+
+    {{#hassuggestions}}
+        <h3 class="h4 mt-4">{{#str}}recurringsuggestions, local_feedbackinsights{{/str}}</h3>
+        <div class="list-group mb-4">
+            {{#suggestions}}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between gap-3">
+                        <strong>{{title}}</strong>
+                        <span class="badge bg-secondary">≈ {{count}}</span>
+                    </div>
+                    <div>{{description}}</div>
+                </div>
+            {{/suggestions}}
+        </div>
+    {{/hassuggestions}}
+
+    {{#hasdivergences}}
+        <h3 class="h4 mt-4">{{#str}}divergences, local_feedbackinsights{{/str}}</h3>
+        <div class="list-group mb-4">
+            {{#divergences}}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between gap-3">
+                        <strong>{{title}}</strong>
+                        <span class="badge bg-secondary">≈ {{count}}</span>
+                    </div>
+                    <div>{{description}}</div>
+                </div>
+            {{/divergences}}
+        </div>
+    {{/hasdivergences}}
+</div>
