@@ -65,9 +65,10 @@ class ai_client {
             [
                 'role' => 'system',
                 'content' => 'Consolidate semantically equivalent provisional themes. Return JSON only in the form ' .
-                    '{"themes":[{"title":"...","description":"...","provisional_ids":["B1T1"],"confidence":0.0}]}. ' .
-                    'Use only provisional_ids supplied by the user. Do not create counts. Do not infer emotion, mental health, ' .
-                    'personality, intent, student quality, engagement, or individual scores.',
+                    '{"themes":[{"title":"...","description":"...","provisional_ids":["B1T1"],' .
+                    '"confidence":0.0}]}. Use only provisional_ids supplied by the user. Do not create counts. ' .
+                    'Do not infer emotion, mental health, personality, intent, student quality, engagement, ' .
+                    'or individual scores.',
             ],
             [
                 'role' => 'user',
@@ -97,9 +98,12 @@ class ai_client {
     private function system_instruction(): string {
         return <<<'TEXT'
 You analyse open-ended course feedback and return useful themes, not word clouds.
-The input contains artificial response IDs and text. Never infer or classify emotion, mental health, personality,\nintent, student quality, engagement, or any individual score. Do not attempt to identify a person.
-Group responses into meaningful themes, recurring suggestions and relevant divergences.\nA response may belong to more than one theme when justified.
-Never invent a count. Never return any ID that does not appear in the input.\nEvidence must be represented only by response IDs; do not quote long passages.
+The input contains artificial response IDs and text. Never infer or classify emotion, mental health, personality,
+intent, student quality, engagement, or any individual score. Do not attempt to identify a person.
+Group responses into meaningful themes, recurring suggestions and relevant divergences.
+A response may belong to more than one theme when justified.
+Never invent a count. Never return any ID that does not appear in the input.
+Evidence must be represented only by response IDs; do not quote long passages.
 Return JSON only with this exact top-level shape:
 {
   "themes": [
@@ -119,7 +123,8 @@ Return JSON only with this exact top-level shape:
     {"title":"short title","description":"meaningful disagreement or divergent experience","response_ids":["R000001"]}
   ]
 }
-Confidence is semantic confidence from 0 to 1, not a student score.\nCounts are calculated later by PHP and must not appear in your output.
+Confidence is semantic confidence from 0 to 1, not a student score.
+Counts are calculated later by PHP and must not appear in your output.
 TEXT;
     }
 }
