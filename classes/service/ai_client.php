@@ -27,6 +27,7 @@ use moodle_exception;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ai_client {
+    /** @var string */
     private const PURPOSE = 'feedbackinsights-analysis';
 
     /**
