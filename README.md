@@ -1,23 +1,7 @@
 # local_feedbackinsights
 
-`local_feedbackinsights` is a Moodle 4.5+ local plugin that analyses open-ended responses and turns them into traceable
+`local_feedbackinsights` is a Moodle local plugin that analyses open-ended responses and turns them into traceable
 themes and useful insights without reducing feedback to a word cloud.
-
-## Requirements
-
-- Moodle 4.5+
-- PHP supported by the target Moodle release
-- `local_ai_bridge >= 2026093001`
-- AI purpose configured in the bridge: `feedbackinsights-analysis`
-
-The plugin never calls OpenAI, Gemini, Claude, Ollama, Whisper or any provider directly. Every semantic request goes
-exclusively through:
-
-```php
-\local_ai_bridge\api::generate('feedbackinsights-analysis', $messages);
-```
-
-No API key, endpoint, provider or model setting exists in this plugin.
 
 ## Initial sources
 
@@ -92,30 +76,3 @@ responses.
 - `local/feedbackinsights:deleteanalyses`
 
 No capability is granted to the student archetype.
-
-## Tests
-
-The PHPUnit suite covers:
-
-- malformed AI JSON;
-- invalid returned IDs;
-- deterministic counts and trend buckets;
-- teacher/student permission boundaries;
-- anonymous response persistence;
-- Privacy API deletion.
-
-CI installs `local_ai_bridge`, runs Moodle Plugin CI checks and invokes `EduardoKrausME/moodle-plugin-validate`.
-
-## Installation
-
-Place the plugin in:
-
-```text
-local/feedbackinsights
-```
-
-Then run Moodle upgrade and configure `feedbackinsights-analysis` in `local_ai_bridge` for the relevant tenant/role.
-
-## License
-
-GNU GPL v3 or later.
