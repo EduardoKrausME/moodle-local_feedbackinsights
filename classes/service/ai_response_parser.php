@@ -34,7 +34,7 @@ final class ai_response_parser {
      */
     public static function parse(string $text): array {
         $text = trim($text);
-        if (preg_match('/^```(?:json)?\s*(.*?)\s*```$/is', $text, $matches)) {
+        if (preg_match('/^\x60{3}(?:json)?\s*(.*?)\s*\x60{3}$/is', $text, $matches)) {
             $text = trim($matches[1]);
         }
         $decoded = json_decode($text, true);
