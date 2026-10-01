@@ -24,6 +24,24 @@ namespace local_feedbackinsights\model;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class response_record {
+    /** @var int Source answer identifier. */
+    public readonly int $id;
+
+    /** @var string Source question identifier. */
+    public readonly string $questionid;
+
+    /** @var string Original answer text. */
+    public readonly string $text;
+
+    /** @var int Answer timestamp. */
+    public readonly int $timestamp;
+
+    /** @var int|null Respondent user id, or null for anonymous sources. */
+    public readonly ?int $userid;
+
+    /** @var bool Whether the source explicitly treats this response as anonymous. */
+    public readonly bool $anonymous;
+
     /**
      * Constructor.
      *
@@ -35,12 +53,18 @@ final class response_record {
      * @param bool $anonymous Whether the source explicitly treats this response as anonymous.
      */
     public function __construct(
-        public readonly int $id,
-        public readonly string $questionid,
-        public readonly string $text,
-        public readonly int $timestamp,
-        public readonly ?int $userid,
-        public readonly bool $anonymous = false,
+        int $id,
+        string $questionid,
+        string $text,
+        int $timestamp,
+        ?int $userid,
+        bool $anonymous = false
     ) {
+        $this->id = $id;
+        $this->questionid = $questionid;
+        $this->text = $text;
+        $this->timestamp = $timestamp;
+        $this->userid = $userid;
+        $this->anonymous = $anonymous;
     }
 }
