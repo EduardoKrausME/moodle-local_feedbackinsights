@@ -80,7 +80,7 @@ class ai_client {
         ];
         $response = api::generate(self::PURPOSE, $messages);
         $text = trim($response->text);
-        if (preg_match('/^```(?:json)?\s*(.*?)\s*```$/is', $text, $matches)) {
+        if (preg_match('/^\x60{3}(?:json)?\s*(.*?)\s*\x60{3}$/is', $text, $matches)) {
             $text = trim($matches[1]);
         }
         $payload = json_decode($text, true);
