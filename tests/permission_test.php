@@ -22,6 +22,7 @@ use context_course;
 /**
  * Plugin capability tests.
  *
+ * @coversNothing
  * @package local_feedbackinsights
  * @copyright 2026 Eduardo Kraus {@link https://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
