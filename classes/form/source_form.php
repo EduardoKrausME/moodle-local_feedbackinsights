@@ -16,9 +16,9 @@
 
 namespace local_feedbackinsights\form;
 
-require_once(__DIR__ . '/../../../../lib/formslib.php');
-
 use moodleform;
+
+require_once(__DIR__ . '/../../../../lib/formslib.php');
 
 /**
  * Source selection form.
