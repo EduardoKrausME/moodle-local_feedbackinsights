@@ -18,6 +18,8 @@ namespace local_feedbackinsights\form;
 
 use moodleform;
 
+defined('MOODLE_INTERNAL') || die;
+
 require_once(__DIR__ . '/../../../../lib/formslib.php');
 
 /**
