@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing release tag to rebuild the installable ZIP
+        description: Existing release tag to rebuild the Moodle-installable ZIP
         required: true
         type: string
 
@@ -15,66 +15,68 @@ permissions:
 jobs:
   auto-release:
     if: github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'V ') || startsWith(github.event.head_commit.message, 'Repackage ')
-
-    runs-on:
-      ubuntu-latest
-
-    outputs:
-      tag: ${{ steps.ver.outputs.version }}
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (full history for tags)
+      - name: Checkout repository with tags
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Extract version of the commit message.
+      - name: Resolve release version or existing tag
         id: ver
         env:
           RELEASE_MESSAGE: ${{ github.event.head_commit.message }}
           REQUESTED_TAG: ${{ inputs.tag }}
         run: |
+          VERSION=""
+          REPACKAGE=0
           if [ -n "$REQUESTED_TAG" ]; then
             VERSION="$REQUESTED_TAG"
             REPACKAGE=1
-          elif printf '%s' "$RELEASE_MESSAGE" | grep -Eq '^Repackage [0-9]+\\.[0-9]+\\.[0-9]+
-            VERSION=$(printf '%s' "$RELEASE_MESSAGE" | sed -nE 's/^V ([0-9]+\.[0-9]+\.[0-9]+)$/\1/p')
-            REPACKAGE=0
+          elif printf '%s' "$RELEASE_MESSAGE" | grep -Eq '^Repackage [0-9]+[.][0-9]+[.][0-9]+$'; then
+            VERSION="$(printf '%s' "$RELEASE_MESSAGE" | cut -d ' ' -f2)"
+            REPACKAGE=1
+          elif printf '%s' "$RELEASE_MESSAGE" | grep -Eq '^V [0-9]+[.][0-9]+[.][0-9]+$'; then
+            VERSION="$(printf '%s' "$RELEASE_MESSAGE" | cut -d ' ' -f2)"
           else
-            echo "No valid version in the commit message."
+            echo "No release version in commit message."
+            exit 1
           fi
-          if [ -n "${VERSION:-}" ]; then
-            if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\\.[0-9]+\\.[0-9]+
-        if: steps.ver.outputs.version == ''
-        run: |
-          echo "Ignoring: commit is not a release."
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+[.][0-9]+[.][0-9]+$'; then
+            echo "Invalid version or tag."
+            exit 1
+          fi
+          if [ "$REPACKAGE" = 1 ]; then
+            git rev-parse -q --verify "refs/tags/$VERSION" > /dev/null
+            git checkout --detach "refs/tags/$VERSION"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "repackage=$REPACKAGE" >> "$GITHUB_OUTPUT"
 
-      - name: Create annotated tag
-        if: steps.ver.outputs.version != '' && steps.ver.outputs.repackage != '1'
+      - name: Create annotated tag for new version
+        if: steps.ver.outputs.repackage != '1'
         run: |
           VERSION="${{ steps.ver.outputs.version }}"
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # usa sem prefixo (ex.: 1.2.3)
           git tag -a "$VERSION" -m "Release $VERSION"
           git push origin "$VERSION"
 
-      - name: Build and validate Moodle installable ZIP
-        if: steps.ver.outputs.version != ''
+      - name: Build Moodle-installable ZIP and verify root
         run: |
           VERSION="${{ steps.ver.outputs.version }}"
-          ARCHIVE="local_feedbackinsights_${VERSION}.zip"
+          ARCHIVE="local_feedbackinsights_$VERSION.zip"
           git archive --format=zip --prefix=feedbackinsights/ --output="$ARCHIVE" HEAD
           test -s "$ARCHIVE"
           unzip -Z1 "$ARCHIVE" | awk '
-            index($0, "feedbackinsights/") != 1 { bad = 1 }
+            index($0, "feedbackinsights/") != 1 { invalid = 1 }
             $0 == "feedbackinsights/version.php" { found = 1 }
-            END { exit bad || !found }
+            END { exit invalid || !found }
           '
-          echo "Validated installer archive $ARCHIVE"
+          echo "Validated $ARCHIVE"
 
-      - name: Create a Release on GitHub
-        if: steps.ver.outputs.version != ''
+      - name: Create or update GitHub Release with installable ZIP
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.ver.outputs.version }}
@@ -83,182 +85,6 @@ jobs:
           fail_on_unmatched_files: true
           body: |
             Installable Moodle ZIP: local_feedbackinsights_${{ steps.ver.outputs.version }}.zip
-            The archive contains the required feedbackinsights/ root folder.
+            Archive root: feedbackinsights/
         env:
           GITHUB_TOKEN: ${{ github.token }}
-; then
-            VERSION="${RELEASE_MESSAGE#Repackage }"
-            REPACKAGE=1
-          elif printf '%s' "$RELEASE_MESSAGE" | grep -Eq '^V [0-9]+\\.[0-9]+\\.[0-9]+
-            VERSION=$(printf '%s' "$RELEASE_MESSAGE" | sed -nE 's/^V ([0-9]+\.[0-9]+\.[0-9]+)$/\1/p')
-            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          else
-            echo "No valid version in the commit message."
-          fi
-
-      - name: Close if there is no version.
-        if: steps.ver.outputs.version == ''
-        run: |
-          echo "Ignoring: commit is not a release."
-
-      - name: Create annotated tag
-        if: steps.ver.outputs.version != ''
-        run: |
-          VERSION="${{ steps.ver.outputs.version }}"
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # usa sem prefixo (ex.: 1.2.3)
-          git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin "$VERSION"
-
-      - name: Create a Release on GitHub
-        if: steps.ver.outputs.version != ''
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.ver.outputs.version }}
-          name: ${{ steps.ver.outputs.version }}
-          body: |
-            Release ${{ steps.ver.outputs.version }} automatically generated by the commit:
-            ${{ github.event.head_commit.id }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_PAT }}
-; then
-            VERSION=$(printf '%s' "$RELEASE_MESSAGE" | sed -nE 's/^V ([0-9]+\.[0-9]+\.[0-9]+)$/\1/p')
-            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          else
-            echo "No valid version in the commit message."
-          fi
-
-      - name: Close if there is no version.
-        if: steps.ver.outputs.version == ''
-        run: |
-          echo "Ignoring: commit is not a release."
-
-      - name: Create annotated tag
-        if: steps.ver.outputs.version != ''
-        run: |
-          VERSION="${{ steps.ver.outputs.version }}"
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # usa sem prefixo (ex.: 1.2.3)
-          git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin "$VERSION"
-
-      - name: Create a Release on GitHub
-        if: steps.ver.outputs.version != ''
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.ver.outputs.version }}
-          name: ${{ steps.ver.outputs.version }}
-          body: |
-            Release ${{ steps.ver.outputs.version }} automatically generated by the commit:
-            ${{ github.event.head_commit.id }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_PAT }}
-; then
-              echo "Invalid version/tag: $VERSION"
-              exit 1
-            fi
-            if [ "${REPACKAGE:-0}" -eq 1 ]; then
-              git rev-parse -q --verify "refs/tags/$VERSION" > /dev/null || exit 1
-              git checkout --detach "refs/tags/$VERSION"
-            fi
-            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-            echo "repackage=${REPACKAGE:-0}" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Close if there is no version.
-        if: steps.ver.outputs.version == ''
-        run: |
-          echo "Ignoring: commit is not a release."
-
-      - name: Create annotated tag
-        if: steps.ver.outputs.version != ''
-        run: |
-          VERSION="${{ steps.ver.outputs.version }}"
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # usa sem prefixo (ex.: 1.2.3)
-          git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin "$VERSION"
-
-      - name: Create a Release on GitHub
-        if: steps.ver.outputs.version != ''
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.ver.outputs.version }}
-          name: ${{ steps.ver.outputs.version }}
-          body: |
-            Release ${{ steps.ver.outputs.version }} automatically generated by the commit:
-            ${{ github.event.head_commit.id }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_PAT }}
-; then
-            VERSION="${RELEASE_MESSAGE#Repackage }"
-            REPACKAGE=1
-          elif printf '%s' "$RELEASE_MESSAGE" | grep -Eq '^V [0-9]+\\.[0-9]+\\.[0-9]+
-            VERSION=$(printf '%s' "$RELEASE_MESSAGE" | sed -nE 's/^V ([0-9]+\.[0-9]+\.[0-9]+)$/\1/p')
-            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          else
-            echo "No valid version in the commit message."
-          fi
-
-      - name: Close if there is no version.
-        if: steps.ver.outputs.version == ''
-        run: |
-          echo "Ignoring: commit is not a release."
-
-      - name: Create annotated tag
-        if: steps.ver.outputs.version != ''
-        run: |
-          VERSION="${{ steps.ver.outputs.version }}"
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # usa sem prefixo (ex.: 1.2.3)
-          git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin "$VERSION"
-
-      - name: Create a Release on GitHub
-        if: steps.ver.outputs.version != ''
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.ver.outputs.version }}
-          name: ${{ steps.ver.outputs.version }}
-          body: |
-            Release ${{ steps.ver.outputs.version }} automatically generated by the commit:
-            ${{ github.event.head_commit.id }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_PAT }}
-; then
-            VERSION=$(printf '%s' "$RELEASE_MESSAGE" | sed -nE 's/^V ([0-9]+\.[0-9]+\.[0-9]+)$/\1/p')
-            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          else
-            echo "No valid version in the commit message."
-          fi
-
-      - name: Close if there is no version.
-        if: steps.ver.outputs.version == ''
-        run: |
-          echo "Ignoring: commit is not a release."
-
-      - name: Create annotated tag
-        if: steps.ver.outputs.version != ''
-        run: |
-          VERSION="${{ steps.ver.outputs.version }}"
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # usa sem prefixo (ex.: 1.2.3)
-          git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin "$VERSION"
-
-      - name: Create a Release on GitHub
-        if: steps.ver.outputs.version != ''
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.ver.outputs.version }}
-          name: ${{ steps.ver.outputs.version }}
-          body: |
-            Release ${{ steps.ver.outputs.version }} automatically generated by the commit:
-            ${{ github.event.head_commit.id }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_PAT }}
