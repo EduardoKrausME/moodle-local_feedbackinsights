@@ -83,7 +83,7 @@ final class privacy_test extends advanced_testcase {
         $result = $this->sample_result(101);
         $analysisid = analysis_repository::save([
             'courseid' => $course->id,
-            'source' => 'assignment',
+            'source' => 'feedback',
             'sourceinstanceid' => 8,
             'questionids' => ['onlinetext'],
             'datefrom' => 1,
