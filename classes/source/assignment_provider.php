@@ -146,6 +146,7 @@ final class assignment_provider extends base_provider {
 
         $cm = $this->get_cm('assign', $instanceid, $courseid);
         $context = context_module::instance($cm->id);
+        $showidentities = $this->can_view_respondent_identities($courseid, $instanceid);
         $groupuserids = $this->get_group_limited_userids($cm, $context);
         $params = [
             'assignmentid' => $instanceid,
@@ -184,8 +185,8 @@ final class assignment_provider extends base_provider {
                 'onlinetext',
                 (string)$record->onlinetext,
                 (int)$record->timemodified,
-                (int)$record->userid,
-                false
+                $showidentities ? (int)$record->userid : null,
+                !$showidentities
             );
         }
         return $responses;
@@ -205,6 +206,7 @@ final class assignment_provider extends base_provider {
         $this->require_access($courseid, $instanceid);
         $cm = $this->get_cm('assign', $instanceid, $courseid);
         $context = context_module::instance($cm->id);
+        $showidentities = $this->can_view_respondent_identities($courseid, $instanceid);
         $groupuserids = $this->get_group_limited_userids($cm, $context);
 
         $sql = "SELECT ot.id, ot.onlinetext, s.timemodified, s.userid
@@ -234,8 +236,35 @@ final class assignment_provider extends base_provider {
             'onlinetext',
             (string)$record->onlinetext,
             (int)$record->timemodified,
-            (int)$record->userid,
-            false
+            $showidentities ? (int)$record->userid : null,
+            !$showidentities
         );
+    }
+
+    /**
+     * Whether the current grader may see respondents' identities.
+     *
+     * Blind marking hides identities until they are revealed, unless the grader
+     * has the explicit Moodle capability to view blind details. This is also
+     * checked when saving analysis members to handle permission changes.
+     *
+     * @param int $courseid Course id.
+     * @param int $instanceid Assignment id.
+     * @return bool Whether respondent IDs can be exposed.
+     */
+    public function can_view_respondent_identities(int $courseid, int $instanceid): bool {
+        global $DB;
+
+        $cm = $this->get_cm('assign', $instanceid, $courseid);
+        $context = context_module::instance($cm->id);
+        require_capability('mod/assign:grade', $context);
+        $assignment = $DB->get_record('assign', [
+            'id' => $instanceid,
+            'course' => $courseid,
+        ], 'id,blindmarking,revealidentities', MUST_EXIST);
+
+        return !(bool)$assignment->blindmarking ||
+            (bool)$assignment->revealidentities ||
+            has_capability('mod/assign:viewblinddetails', $context);
     }
 }
