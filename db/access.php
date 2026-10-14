@@ -36,6 +36,7 @@ $capabilities = [
     ],
     'local/feedbackinsights:analyse' => [
         'captype' => 'write',
+        'riskbitmask' => RISK_PERSONAL,
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'teacher' => CAP_ALLOW,
@@ -45,6 +46,7 @@ $capabilities = [
     ],
     'local/feedbackinsights:viewresponses' => [
         'captype' => 'read',
+        'riskbitmask' => RISK_PERSONAL,
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'teacher' => CAP_ALLOW,
