@@ -17,6 +17,7 @@
 namespace local_feedbackinsights\service;
 
 use local_feedbackinsights\model\response_record;
+use local_feedbackinsights\source\assignment_provider;
 
 /**
  * Persistence for structured analyses.
@@ -38,6 +39,14 @@ final class analysis_repository {
      */
     public static function save(array $metadata, array $result, array $responses): int {
         global $DB, $USER;
+
+        // Recheck blind-marking permissions before storing respondent IDs:
+        // they may have changed during the external AI request.
+        $storeuserids = $metadata['source'] !== 'assignment' ||
+            (new assignment_provider())->can_view_respondent_identities(
+                (int)$metadata['courseid'],
+                (int)$metadata['sourceinstanceid']
+            );
 
         $now = time();
         $record = (object)[
@@ -69,7 +78,7 @@ final class analysis_repository {
             $DB->insert_record('local_feedbackinsights_mem', (object)[
                 'analysisid' => $analysisid,
                 'sourceanswerid' => $response->id,
-                'userid' => $response->anonymous ? null : $response->userid,
+                'userid' => ($storeuserids && !$response->anonymous) ? $response->userid : null,
                 'themesjson' => json_encode(array_values(array_unique($themebyresponse[$response->id] ?? []))),
                 'timecreated' => $now,
             ]);
