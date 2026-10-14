@@ -8,7 +8,8 @@ themes and useful insights without reducing feedback to a word cloud.
 - `mod_feedback`: textfield and textarea items. Anonymous Feedback remains anonymous; the provider deliberately
   sets `userid = null` and never tries to reconstruct identity.
 - Assignment online text: available only when the current user can grade that Assignment and explicitly selects it as
-  the source.
+  the source. Blind-marked respondent identities remain hidden until revealed unless the grader has
+  `mod/assign:viewblinddetails`, and hidden user IDs are never stored in new analysis memberships.
 
 The source layer is extensible through `\local_feedbackinsights\source\provider`. Another plugin can register providers
 from its `lib.php`:
@@ -27,7 +28,11 @@ coupling this plugin to a third-party schema.
 The deterministic layer runs first. PHP selects the source, enforces source capabilities and group access, counts
 records, removes empty answers, normalises HTML to plain text, applies a configurable size limit, creates artificial
 request IDs and removes Moodle identity metadata from the prompt. Common direct identifiers such as e-mail addresses and
-phone-like strings are masked where possible.
+Brazilian-format phone numbers are masked, but names and other personal information written in text are not.
+
+The bridge forwards these objects to the AI provider selected by the site (for example OpenAI, Anthropic, Google,
+or a self-hosted Ollama service). Question labels and response text can contain personal details; administrators should
+configure an appropriate service and disclose this external processing in the site's privacy information.
 
 The AI receives only objects such as:
 
@@ -76,3 +81,13 @@ responses.
 - `local/feedbackinsights:deleteanalyses`
 
 No capability is granted to the student archetype.
+
+## Moodle-installable release archives
+
+GitHub's automatically generated source-code ZIP has a repository-derived root folder, so it is **not** a valid Moodle
+installer package. Download the explicitly attached `local_feedbackinsights_<version>.zip` asset from a GitHub Release;
+its sole root folder is `feedbackinsights/`.
+
+Maintainers can rebuild the ZIP for an existing release using **Actions > Auto-release via commit message > Run workflow**
+and the existing tag, without changing the plugin version or the tag's source files. Any invalid package already uploaded
+to the Moodle Marketplace must be replaced separately; updating a GitHub Release does not replace a Marketplace upload.
