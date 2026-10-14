@@ -64,9 +64,10 @@ final class provider implements
             'themesjson' => 'privacy:metadata:member:themesjson',
         ], 'privacy:metadata:member');
 
-        $collection->add_external_location_link('local_ai_bridge', [
+        $collection->add_external_location_link('local_ai_bridge_external_provider', [
             'responseid' => 'privacy:metadata:bridge:responseid',
             'questionid' => 'privacy:metadata:bridge:questionid',
+            'question' => 'privacy:metadata:bridge:question',
             'text' => 'privacy:metadata:bridge:text',
         ], 'privacy:metadata:bridge');
 
