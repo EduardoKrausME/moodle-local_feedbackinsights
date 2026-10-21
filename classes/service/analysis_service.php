@@ -16,7 +16,6 @@
 
 namespace local_feedbackinsights\service;
 
-use core_text;
 use local_feedbackinsights\model\response_record;
 use local_feedbackinsights\source\provider;
 use moodle_exception;
@@ -93,8 +92,8 @@ final class analysis_service {
             $pseudoid = sprintf('R%06d', $index + 1);
             $pseudomap[$pseudoid] = $response;
             $text = anonymizer::redact($response->text);
-            if (core_text::strlen($text) > $maxchars) {
-                $text = core_text::substr($text, 0, $maxchars) . '…';
+            if (strlen($text) > $maxchars) {
+                $text = substr($text, 0, $maxchars) . '…';
             }
             $prepared[] = [
                 'id' => $pseudoid,

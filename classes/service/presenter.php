@@ -16,7 +16,6 @@
 
 namespace local_feedbackinsights\service;
 
-use core_text;
 use local_feedbackinsights\source\provider_manager;
 use moodle_url;
 
@@ -57,8 +56,8 @@ final class presenter {
                         continue;
                     }
                     $excerpt = text_normalizer::normalize($response->text);
-                    if (core_text::strlen($excerpt) > 220) {
-                        $excerpt = core_text::substr($excerpt, 0, 220) . '…';
+                    if (strlen($excerpt) > 220) {
+                        $excerpt = substr($excerpt, 0, 220) . '…';
                     }
                     $examples[] = [
                         'label' => get_string('responseid', 'local_feedbackinsights', $responseid),
