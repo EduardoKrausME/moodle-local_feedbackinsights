@@ -81,13 +81,3 @@ responses.
 - `local/feedbackinsights:deleteanalyses`
 
 No capability is granted to the student archetype.
-
-## Moodle-installable release archives
-
-GitHub's automatically generated source-code ZIP has a repository-derived root folder, so it is **not** a valid Moodle
-installer package. Download the explicitly attached `local_feedbackinsights_<version>.zip` asset from a GitHub Release;
-its sole root folder is `feedbackinsights/`.
-
-Maintainers can rebuild the ZIP for an existing release using **Actions > Auto-release via commit message > Run workflow**
-and the existing tag, without changing the plugin version or the tag's source files. Any invalid package already uploaded
-to the Moodle Marketplace must be replaced separately; updating a GitHub Release does not replace a Marketplace upload.
